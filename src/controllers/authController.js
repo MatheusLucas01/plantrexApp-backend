@@ -5,12 +5,12 @@ const prisma = require('../config/database');
 // REGISTRO
 exports.register = async (req, res) => {
     try {
-        const { nome, email, senha, cpf, telefone, conheceIFGoiano } = req.body;
+        const { nome, email, senha } = req.body;
 
         // Validação básica
-        if (!nome || !email || !senha || !cpf) {
+        if (!nome || !email || !senha) {
             return res.status(400).json({
-                message: 'Nome, email, senha e CPF são obrigatórios'
+                message: 'Nome, email e senha obrigatórios'
             });
         }
 
@@ -31,16 +31,6 @@ exports.register = async (req, res) => {
             });
         }
 
-        // Verificar se CPF já existe
-        const cpfExiste = await prisma.usuario.findUnique({
-            where: { cpf }
-        });
-
-        if (cpfExiste) {
-            return res.status(409).json({
-                message: 'CPF já cadastrado'
-            });
-        }
 
         // Criptografar senha
         const senhaHash = await bcrypt.hash(senha, 10);
@@ -51,19 +41,11 @@ exports.register = async (req, res) => {
                 nome,
                 email,
                 senha: senhaHash,
-                cpf,
-                telefone,
-                conheceIFGoiano: conheceIFGoiano || false,
-                conheceCursosTecnicos: false
             },
             select: {
                 id: true,
                 nome: true,
                 email: true,
-                cpf: true,
-                telefone: true,
-                conheceIFGoiano: true,
-                conheceCursosTecnicos: true,
                 createdAt: true
             }
         });
@@ -176,6 +158,74 @@ exports.me = async (req, res) => {
         console.error('Erro ao buscar usuário:', error);
         return res.status(500).json({
             message: 'Erro ao buscar dados do usuário'
+        });
+    }
+};
+
+// ATUALIZAR PERFIL (Dados completos do formulário)
+exports.updateProfile = async (req, res) => {
+    try {
+        const {
+            cpf,
+            telefone,
+            dataNascimento,
+            estadoCivil,
+            conheceIFGoiano,
+            conheceCursosTecnicos
+        } = req.body;
+
+        // Se CPF foi informado, verificar se já existe
+        if (cpf) {
+            const cpfExiste = await prisma.usuario.findFirst({
+                where: {
+                    cpf,
+                    NOT: {
+                        id: req.usuarioId  // Ignora o próprio usuário
+                    }
+                }
+            });
+
+            if (cpfExiste) {
+                return res.status(409).json({
+                    message: 'CPF já cadastrado por outro usuário'
+                });
+            }
+        }
+
+        // Atualizar perfil
+        const usuarioAtualizado = await prisma.usuario.update({
+            where: { id: req.usuarioId },
+            data: {
+                cpf,
+                telefone,
+                dataNascimento: dataNascimento ? new Date(dataNascimento) : undefined,
+                estadoCivil,
+                conheceIFGoiano,
+                conheceCursosTecnicos
+            },
+            select: {
+                id: true,
+                nome: true,
+                email: true,
+                cpf: true,
+                telefone: true,
+                dataNascimento: true,
+                estadoCivil: true,
+                conheceIFGoiano: true,
+                conheceCursosTecnicos: true,
+                updatedAt: true
+            }
+        });
+
+        return res.json({
+            message: 'Perfil atualizado com sucesso',
+            usuario: usuarioAtualizado
+        });
+
+    } catch (error) {
+        console.error('Erro ao atualizar perfil:', error);
+        return res.status(500).json({
+            message: 'Erro ao atualizar perfil'
         });
     }
 };
