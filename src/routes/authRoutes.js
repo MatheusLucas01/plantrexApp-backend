@@ -52,7 +52,7 @@ const authMiddleware = require('../middleware/auth');
  * @swagger
  * /auth/register:
  *   post:
- *     summary: Registrar novo usuário
+ *     summary: Registrar novo usuário (dados básicos)
  *     tags: [Autenticação]
  *     security: []
  *     requestBody:
@@ -65,7 +65,6 @@ const authMiddleware = require('../middleware/auth');
  *               - nome
  *               - email
  *               - senha
- *               - cpf
  *             properties:
  *               nome:
  *                 type: string
@@ -79,35 +78,14 @@ const authMiddleware = require('../middleware/auth');
  *                 format: password
  *                 minLength: 6
  *                 example: "123456"
- *               cpf:
- *                 type: string
- *                 example: "12345678901"
- *               telefone:
- *                 type: string
- *                 example: "62999887766"
- *               conheceIFGoiano:
- *                 type: boolean
- *                 example: true
  *     responses:
  *       201:
  *         description: Usuário criado com sucesso
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 usuario:
- *                   $ref: '#/components/schemas/Usuario'
- *                 token:
- *                   type: string
- *       400:
- *         description: Dados inválidos
  *       409:
- *         description: Email ou CPF já cadastrado
+ *         description: Email já cadastrado
  */
 router.post('/register', authController.register);
+
 
 /**
  * @swagger
@@ -137,17 +115,6 @@ router.post('/register', authController.register);
  *     responses:
  *       200:
  *         description: Login realizado com sucesso
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 usuario:
- *                   $ref: '#/components/schemas/Usuario'
- *                 token:
- *                   type: string
  *       401:
  *         description: Credenciais inválidas
  */
@@ -164,15 +131,51 @@ router.post('/login', authController.login);
  *     responses:
  *       200:
  *         description: Dados do usuário
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Usuario'
  *       401:
  *         description: Não autenticado
- *       404:
- *         description: Usuário não encontrado
  */
 router.get('/me', authMiddleware, authController.me);
+
+/**
+ * @swagger
+ * /auth/profile:
+ *   put:
+ *     summary: Completar/atualizar perfil do usuário (formulário completo)
+ *     tags: [Autenticação]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               cpf:
+ *                 type: string
+ *                 example: "12345678901"
+ *               telefone:
+ *                 type: string
+ *                 example: "62999887766"
+ *               dataNascimento:
+ *                 type: string
+ *                 format: date
+ *                 example: "1990-05-15"
+ *               estadoCivil:
+ *                 type: string
+ *                 example: "CASADO"
+ *               conheceIFGoiano:
+ *                 type: boolean
+ *                 example: true
+ *               conheceCursosTecnicos:
+ *                 type: boolean
+ *                 example: false
+ *     responses:
+ *       200:
+ *         description: Perfil atualizado com sucesso
+ *       409:
+ *         description: CPF já cadastrado
+ */
+router.put('/profile', authMiddleware, authController.updateProfile);
 
 module.exports = router;
