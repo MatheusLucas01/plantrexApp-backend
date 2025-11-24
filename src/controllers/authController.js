@@ -41,11 +41,13 @@ exports.register = async (req, res) => {
                 nome,
                 email,
                 senha: senhaHash,
+                formularioCompleto: false,
             },
             select: {
                 id: true,
                 nome: true,
                 email: true,
+                formularioCompleto: true,
                 createdAt: true
             }
         });
@@ -142,6 +144,7 @@ exports.me = async (req, res) => {
                 estadoCivil: true,
                 conheceIFGoiano: true,
                 conheceCursosTecnicos: true,
+                formularioCompleto: true,
                 createdAt: true
             }
         });
@@ -201,7 +204,8 @@ exports.updateProfile = async (req, res) => {
                 dataNascimento: dataNascimento ? new Date(dataNascimento) : undefined,
                 estadoCivil,
                 conheceIFGoiano,
-                conheceCursosTecnicos
+                conheceCursosTecnicos,
+                formularioCompleto: true,
             },
             select: {
                 id: true,
@@ -213,6 +217,7 @@ exports.updateProfile = async (req, res) => {
                 estadoCivil: true,
                 conheceIFGoiano: true,
                 conheceCursosTecnicos: true,
+                formularioCompleto: true,
                 updatedAt: true
             }
         });
@@ -226,6 +231,45 @@ exports.updateProfile = async (req, res) => {
         console.error('Erro ao atualizar perfil:', error);
         return res.status(500).json({
             message: 'Erro ao atualizar perfil'
+        });
+    }
+};
+
+// PÁGINA HOME (Rota protegida)
+exports.home = async (req, res) => {
+    try {
+        // Buscar dados do usuário autenticado
+        const usuario = await prisma.usuario.findUnique({
+            where: { id: req.usuarioId },
+            select: {
+                id: true,
+                nome: true,
+                email: true,
+                cpf: true,
+                telefone: true,
+                dataNascimento: true,
+                estadoCivil: true,
+                conheceIFGoiano: true,
+                conheceCursosTecnicos: true,
+                createdAt: true
+            }
+        });
+
+        if (!usuario) {
+            return res.status(404).json({
+                message: 'Usuário não encontrado'
+            });
+        }
+
+        return res.json({
+            message: `Bem-vindo à página home, ${usuario.nome}!`,
+            user: usuario
+        });
+
+    } catch (error) {
+        console.error('Erro ao acessar home:', error);
+        return res.status(500).json({
+            message: 'Erro ao acessar página home'
         });
     }
 };

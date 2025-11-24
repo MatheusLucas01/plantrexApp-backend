@@ -4,6 +4,9 @@ const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 const authRoutes = require('./routes/authRoutes');
+const propriedadeRoutes = require('./routes/propriedadeRoutes');
+const culturaRoutes = require('./routes/culturaRoutes');
+const bioinsumoRoutes = require('./routes/bioinsumoRoutes');
 
 const app = express();
 const port = process.env.PORT || 4020;
@@ -36,6 +39,9 @@ app.get('/', (req, res) => {
 // ROTAS DA API
 // ============================================
 app.use('/auth', authRoutes);
+app.use('/api/propriedade', propriedadeRoutes);
+app.use('/api/cultura', culturaRoutes);
+app.use('/api/bioinsumo', bioinsumoRoutes);
 
 // ============================================
 // TRATAMENTO DE ERRO 404
@@ -45,6 +51,7 @@ app.use((req, res) => {
         message: 'Rota não encontrada'
     });
 });
+
 
 // Iniciar servidor
 app.listen(port, () => {
