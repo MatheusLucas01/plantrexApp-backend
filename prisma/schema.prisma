@@ -11,22 +11,24 @@ datasource db {
 // USUARIO (Produtor Rural)
 // ============================================
 model Usuario {
-  id                    String        @id @default(uuid())
+  id                    String    @id @default(nanoid())
   nome                  String
-  email                 String        @unique
+  email                 String    @unique
   senha                 String
-  cpf                   String?        @unique
+  cpf                   String?   @unique
   telefone              String?
   dataNascimento        DateTime?
   estadoCivil           String?
-  conheceIFGoiano       Boolean       @default(false)
-  conheceCursosTecnicos Boolean       @default(false)
-  
-  propriedades          Propriedade[]
-  
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
-  
+  conheceIFGoiano       Boolean   @default(false)
+  conheceCursosTecnicos Boolean   @default(false)
+  formularioCompleto    Boolean   @default(false)
+
+  propriedades Propriedade[]
+
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  bioinsumos Bioinsumo[]
+
   @@map("usuarios")
 }
 
@@ -34,63 +36,89 @@ model Usuario {
 // PROPRIEDADE (Fazenda)
 // ============================================
 model Propriedade {
-  id                      String    @id @default(uuid())
-  nome                    String
-  localizacao             String
-  coordenadas             String?
-  tamanho                 Float
-  unidadeMedida           String    @default("HECTARE")
-  
+  id            String  @id @default(nanoid())
+  nome          String
+  localizacao   String
+  coordenadas   String?
+  tamanho       Float
+  unidadeMedida String  @default("HECTARE")
+
   // Tipo de solo (booleanos)
-  soloArenoso             Boolean   @default(false)
-  soloArgiloso            Boolean   @default(false)
-  soloComCascalhos        Boolean   @default(false)
-  soloComPedras           Boolean   @default(false)
-  soloDeVarzea            Boolean   @default(false)
-  soloPlano               Boolean   @default(false)
-  soloDeclivModerada      Boolean   @default(false)
-  soloDeclivAcentuada     Boolean   @default(false)
-  soloRaso                Boolean   @default(false)
-  soloProfundo            Boolean   @default(false)
-  
+  soloArenoso         Boolean @default(false)
+  soloArgiloso        Boolean @default(false)
+  soloComCascalhos    Boolean @default(false)
+  soloComPedras       Boolean @default(false)
+  soloDeVarzea        Boolean @default(false)
+  soloPlano           Boolean @default(false)
+  soloDeclivModerada  Boolean @default(false)
+  soloDeclivAcentuada Boolean @default(false)
+  soloRaso            Boolean @default(false)
+  soloProfundo        Boolean @default(false)
+
   // Bioinsumos
-  conheceBioinsumos       Boolean   @default(false)
-  utilizaBioinsumos       Boolean   @default(false)
-  tiposBioinsumos         String[]
-  resultadosBioinsumos    String?
-  expectativasBioinsumos  String?
-  
-  usuarioId               String
-  usuario                 Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  
-  culturas                Cultura[]
-  
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-  
+  conheceBioinsumos      Boolean  @default(false)
+  utilizaBioinsumos      Boolean  @default(false)
+  tiposBioinsumos        String[]
+  resultadosBioinsumos   String?
+  expectativasBioinsumos String?
+
+  // Limitações da propriedade
+  limitacaoAgua                Boolean @default(false)
+  limitacaoSolo                Boolean @default(false)
+  limitacaoRecursosFinanceiros Boolean @default(false)
+  limitacaoAcessoInsumos       Boolean @default(false)
+  limitacaoEstrada             Boolean @default(false)
+  limitacaoTransporte          Boolean @default(false)
+  limitacaoMaoDeObra           Boolean @default(false)
+  limitacaoImpostos            Boolean @default(false)
+  limitacaoPragas              Boolean @default(false)
+  limitacaoDoencas             Boolean @default(false)
+  limitacaoMaquinario          Boolean @default(false)
+
+  usuarioId String
+  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  culturas Cultura[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("propriedades")
+}
+
+model Bioinsumo {
+  id                     String   @id @default(nanoid())
+  conheceBioinsumos      Boolean  @default(false)
+  utilizaBioinsumos      Boolean  @default(false)
+  tiposBioinsumos        String?
+  resultadosBioinsumos   String?
+  expectativasBioinsumos String?
+  usuarioId              String
+  usuario                Usuario  @relation(fields: [usuarioId], references: [id])
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 }
 
 // ============================================
 // CULTURA (Plantação)
 // ============================================
 model Cultura {
-  id                String        @id @default(uuid())
-  tipoCultura       String
-  area              Float
-  unidadeMedida     String        @default("HECTARE")
-  tipoManejo        String?
-  conhecimento      String?
-  
+  id            String  @id @default(nanoid())
+  tipoCultura   String
+  area          Float
+  unidadeMedida String  @default("HECTARE")
+  tipoManejo    String?
+  conhecimento  String?
+
   // Pragas (referências da API externa)
-  pragasIds         String[]
-  pragasNomes       String[]
-  
-  propriedadeId     String
-  propriedade       Propriedade   @relation(fields: [propriedadeId], references: [id], onDelete: Cascade)
-  
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  
+  pragasIds   String[]
+  pragasNomes String[]
+
+  propriedadeId String
+  propriedade   Propriedade @relation(fields: [propriedadeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("culturas")
 }
