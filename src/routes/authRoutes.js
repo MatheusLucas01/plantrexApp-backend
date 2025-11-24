@@ -178,4 +178,30 @@ router.get('/me', authMiddleware, authController.me);
  */
 router.put('/profile', authMiddleware, authController.updateProfile);
 
+/**
+ * @swagger
+ * /auth/home:
+ *   get:
+ *     summary: Acessar página home (rota protegida)
+ *     tags: [Autenticação]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dados da página home
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Bem-vindo à página home!"
+ *                 user:
+ *                   $ref: '#/components/schemas/Usuario'
+ *       401:
+ *         description: Não autenticado
+ */
+router.get('/home', authMiddleware, authController.home);
+
 module.exports = router;
