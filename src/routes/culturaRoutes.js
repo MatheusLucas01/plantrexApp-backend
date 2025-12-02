@@ -6,8 +6,10 @@ const authMiddleware = require('../middleware/auth');
 router.use(authMiddleware);
 
 router.post('/', culturaController.create);
-router.get('/propriedade/:propriedadeId', culturaController.listByPropriedade);
+router.get('/', culturaController.list);
+router.get('/:id', culturaController.getById);
 router.put('/:id', culturaController.update);
 router.delete('/:id', culturaController.delete);
+
 
 module.exports = router;

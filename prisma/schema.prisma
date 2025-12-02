@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ============================================
@@ -28,6 +29,8 @@ model Usuario {
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
   bioinsumos Bioinsumo[]
+  culturas   Cultura[]
+  pragasRespostas PragaResposta[]
 
   @@map("usuarios")
 }
@@ -103,22 +106,47 @@ model Bioinsumo {
 // CULTURA (Plantação)
 // ============================================
 model Cultura {
-  id            String  @id @default(nanoid())
-  tipoCultura   String
-  area          Float
-  unidadeMedida String  @default("HECTARE")
-  tipoManejo    String?
-  conhecimento  String?
+  id               String  @id @default(nanoid())
+  tipoCultura      String
+  area             Float
+  tipoManejo       String?
+  conhecimento     String?
+  pragasConhecidas String?
 
-  // Pragas (referências da API externa)
-  pragasIds   String[]
-  pragasNomes String[]
+  usuarioId String
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
 
-  propriedadeId String
-  propriedade   Propriedade @relation(fields: [propriedadeId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  propriedade   Propriedade? @relation(fields: [propriedadeId], references: [id])
+  propriedadeId String?
+
+  @@map("culturas")
+}
+
+// ============================================
+// RESPOSTA PRAGA (Resposta do usuário sobre pragas da API externa)
+// ============================================
+model PragaResposta {
+  id            String   @id @default(nanoid())
+
+  pragaIdExterno String   // ID da praga vindo da API externa
+
+  usuarioId     String
+  usuario       Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  propriedadeId String?  // Opcional: em qual propriedade foi vista
+
+  // Tipos de resposta
+  jaViu         Boolean @default(false)  // "Já vi na minha propriedade"
+  conhece       Boolean @default(false)  // "Conheço mas nunca vi aqui"
+  naoConhece    Boolean @default(false)  // "Não conheço"
+
+  observacoes   String?  // Campo opcional para observações
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("culturas")
+  @@unique([usuarioId, pragaIdExterno]) // Um usuário só pode responder uma vez por praga
+  @@map("pragas_respostas")
 }

@@ -7,6 +7,9 @@ const authRoutes = require('./routes/authRoutes');
 const propriedadeRoutes = require('./routes/propriedadeRoutes');
 const culturaRoutes = require('./routes/culturaRoutes');
 const bioinsumoRoutes = require('./routes/bioinsumoRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const pragaRespostaRoutes = require('./routes/pragaRespostaRoutes');
+const pragaRoutes = require('./routes/pragaRoutes');
 
 const app = express();
 const port = process.env.PORT || 4020;
@@ -42,6 +45,9 @@ app.use('/auth', authRoutes);
 app.use('/api/propriedade', propriedadeRoutes);
 app.use('/api/cultura', culturaRoutes);
 app.use('/api/bioinsumo', bioinsumoRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/praga', pragaRoutes);
+app.use('/api/praga-resposta', pragaRespostaRoutes);
 
 // ============================================
 // TRATAMENTO DE ERRO 404
