@@ -24,13 +24,7 @@ model Usuario {
   conheceCursosTecnicos Boolean   @default(false)
   formularioCompleto    Boolean   @default(false)
 
-  resetCode       String?
-  resetCodeExpiry DateTime?
-  resetAttempts   Int       @default(0)
-  resetCodeSentAt DateTime?
-
   propriedades  Propriedade[]
-  refreshTokens RefreshToken[]
 
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
@@ -39,34 +33,6 @@ model Usuario {
   pragasRespostas PragaResposta[]
 
   @@map("usuarios")
-}
-
-// ============================================
-// REFRESH TOKENS (Sessões ativas)
-// ============================================
-model RefreshToken {
-  id        String   @id @default(nanoid())
-  token     String   @unique // hash SHA-256 — nunca o valor raw
-  usuarioId String
-  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  @@map("refresh_tokens")
-}
-
-// ============================================
-// VERIFICAÇÃO DE TELEFONE (Cadastro 2FA)
-// ============================================
-model VerificacaoTelefone {
-  id       String   @id @default(nanoid())
-  telefone String   @unique
-  codigo   String   // hash SHA-256 — nunca texto plano
-  expiry   DateTime
-  attempts Int      @default(0)
-  sentAt   DateTime @default(now())
-
-  @@map("verificacoes_telefone")
 }
 
 // ============================================

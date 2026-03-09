@@ -19,18 +19,11 @@ const telefoneValido = (tel) => /^\d{10,11}$/.test(tel);
 const MAX_TENTATIVAS = 5;
 const COOLDOWN_MS = 2 * 60 * 1000; // 2 minutos entre reenvios
 
-// Constantes JWT
-const JWT_ISSUER = 'plantrex';
-const JWT_AUDIENCE = 'plantrex-mobile';
-const ACCESS_TOKEN_EXPIRY = '15m';
-const REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 dias
-
-/** Gera access token — apenas sub (user ID), sem PII [OWASP MASVS-AUTH / JWT Best Practices] */
 const gerarAccessToken = (userId) =>
     jwt.sign(
-        { sub: userId },
+        { id: userId },
         process.env.JWT_SECRET,
-        { expiresIn: ACCESS_TOKEN_EXPIRY, issuer: JWT_ISSUER, audience: JWT_AUDIENCE }
+        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
 /** Cria e armazena refresh token hashed no banco */
@@ -158,13 +151,11 @@ exports.register = async (req, res) => {
         });
 
         const accessToken = gerarAccessToken(novoUsuario.id);
-        const refreshToken = await criarRefreshToken(novoUsuario.id);
 
         return res.status(201).json({
             message: 'Usuário cadastrado com sucesso',
             usuario: novoUsuario,
             accessToken,
-            refreshToken,
         });
 
     } catch (error) {
@@ -205,18 +196,14 @@ exports.login = async (req, res) => {
             });
         }
 
-        // [JWT BP] Apenas sub no payload — sem PII
         const accessToken = gerarAccessToken(usuario.id);
-        const refreshToken = await criarRefreshToken(usuario.id);
 
-        // Remover senha da resposta
-        const { senha, resetCode, resetCodeExpiry, resetAttempts, resetCodeSentAt, ...usuarioSemSenha } = usuario;
+        const { senha, ...usuarioSemSenha } = usuario;
 
         return res.json({
             message: 'Login realizado com sucesso',
             usuario: usuarioSemSenha,
             accessToken,
-            refreshToken,
         });
 
     } catch (error) {
