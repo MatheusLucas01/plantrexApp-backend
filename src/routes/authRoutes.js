@@ -84,7 +84,84 @@ const authMiddleware = require('../middleware/auth');
  *       409:
  *         description: Email já cadastrado
  */
+/**
+ * @swagger
+ * /auth/send-phone-verification:
+ *   post:
+ *     summary: Enviar código SMS para verificação de telefone (pré-cadastro)
+ *     tags: [Autenticação]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - telefone
+ *             properties:
+ *               telefone:
+ *                 type: string
+ *                 example: "62999887766"
+ *     responses:
+ *       200:
+ *         description: Código enviado por SMS
+ *       409:
+ *         description: Número já cadastrado
+ *       429:
+ *         description: Cooldown ativo
+ */
+router.post('/send-phone-verification', authController.sendPhoneVerification);
+
 router.post('/register', authController.register);
+
+/**
+ * @swagger
+ * /auth/refresh:
+ *   post:
+ *     summary: Renovar access token usando refresh token (com rotação)
+ *     tags: [Autenticação]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Novo par de tokens emitido
+ *       401:
+ *         description: Refresh token inválido ou expirado
+ */
+router.post('/refresh', authController.refresh);
+
+/**
+ * @swagger
+ * /auth/logout:
+ *   post:
+ *     summary: Encerrar sessão (invalida refresh token do dispositivo)
+ *     tags: [Autenticação]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Logout realizado com sucesso
+ */
+router.post('/logout', authController.logout);
 
 
 /**
@@ -203,5 +280,100 @@ router.put('/profile', authMiddleware, authController.updateProfile);
  *         description: Não autenticado
  */
 router.get('/home', authMiddleware, authController.home);
+
+/**
+ * @swagger
+ * /auth/forgot-password:
+ *   post:
+ *     summary: Solicitar código de redefinição de senha por SMS
+ *     tags: [Autenticação]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - telefone
+ *             properties:
+ *               telefone:
+ *                 type: string
+ *                 example: "62999887766"
+ *     responses:
+ *       200:
+ *         description: Solicitação processada (resposta genérica por segurança)
+ *       500:
+ *         description: Erro interno
+ */
+router.post('/forgot-password', authController.forgotPassword);
+
+/**
+ * @swagger
+ * /auth/verify-reset-code:
+ *   post:
+ *     summary: Verificar código SMS de redefinição
+ *     tags: [Autenticação]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - telefone
+ *               - codigo
+ *             properties:
+ *               telefone:
+ *                 type: string
+ *                 example: "62999887766"
+ *               codigo:
+ *                 type: string
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: Código verificado com sucesso
+ *       400:
+ *         description: Código inválido ou expirado
+ */
+router.post('/verify-reset-code', authController.verifyResetCode);
+
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     summary: Redefinir senha com código verificado
+ *     tags: [Autenticação]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - telefone
+ *               - codigo
+ *               - novaSenha
+ *             properties:
+ *               telefone:
+ *                 type: string
+ *                 example: "62999887766"
+ *               codigo:
+ *                 type: string
+ *                 example: "123456"
+ *               novaSenha:
+ *                 type: string
+ *                 format: password
+ *                 minLength: 6
+ *                 example: "novaSenha123"
+ *     responses:
+ *       200:
+ *         description: Senha redefinida com sucesso
+ *       400:
+ *         description: Código inválido, expirado ou senha fraca
+ */
+router.post('/reset-password', authController.resetPassword);
 
 module.exports = router;
