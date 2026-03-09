@@ -131,6 +131,7 @@ model PragaResposta {
   id            String   @id @default(nanoid())
 
   pragaIdExterno String   // ID da praga vindo da API externa
+  commonName     String?  // Nome comum da praga (armazenado para uso no dashboard)
 
   usuarioId     String
   usuario       Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)

@@ -6,14 +6,15 @@ exports.getDashboard = async (req, res) => {
         const usuarioId = req.usuarioId;
 
         // Buscar todas as informações do usuário
-        const [propriedades, culturas, bioinsumos, usuario] = await Promise.all([
+        const [propriedades, culturas, bioinsumos, usuario, pragasRespostas] = await Promise.all([
             prisma.propriedade.findMany({ where: { usuarioId } }),
             prisma.cultura.findMany({ where: { usuarioId } }),
             prisma.bioinsumo.findMany({ where: { usuarioId } }),
             prisma.usuario.findUnique({
                 where: { id: usuarioId },
                 select: { nome: true, email: true }
-            })
+            }),
+            prisma.pragaResposta.findMany({ where: { usuarioId } })
         ]);
 
         // Calcular totais
@@ -36,6 +37,11 @@ exports.getDashboard = async (req, res) => {
             .sort((a, b) => b[1] - a[1])
             .slice(0, 3)
             .map(([cultura]) => cultura);
+
+        // Pragas
+        const pragasNaPropriedade = pragasRespostas
+            .filter(r => r.jaViu)
+            .map(r => ({ id: r.pragaIdExterno, nome: r.commonName || 'Praga desconhecida' }));
 
         res.json({
             usuario: {
@@ -65,6 +71,13 @@ exports.getDashboard = async (req, res) => {
             bioinsumos: {
                 utiliza: utilizaBioinsumos,
                 conhece: conheceBioinsumos
+            },
+            pragas: {
+                total: pragasRespostas.length,
+                jaViu: pragasRespostas.filter(r => r.jaViu).length,
+                conhece: pragasRespostas.filter(r => r.conhece).length,
+                naoConhece: pragasRespostas.filter(r => r.naoConhece).length,
+                naPropriedade: pragasNaPropriedade
             }
         });
 

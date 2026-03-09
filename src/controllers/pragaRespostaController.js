@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 exports.createOrUpdate = async (req, res) => {
     try {
         const usuarioId = req.usuarioId;
-        const { pragaIdExterno, jaViu, conhece, naoConhece, propriedadeId, observacoes } = req.body;
+        const { pragaIdExterno, commonName, jaViu, conhece, naoConhece, propriedadeId, observacoes } = req.body;
 
         // Verificar se já existe uma resposta para esta praga
         const respostaExistente = await prisma.pragaResposta.findUnique({
@@ -24,6 +24,7 @@ exports.createOrUpdate = async (req, res) => {
             resposta = await prisma.pragaResposta.update({
                 where: { id: respostaExistente.id },
                 data: {
+                    commonName,
                     jaViu: jaViu || false,
                     conhece: conhece || false,
                     naoConhece: naoConhece || false,
@@ -37,6 +38,7 @@ exports.createOrUpdate = async (req, res) => {
                 data: {
                     usuarioId,
                     pragaIdExterno,
+                    commonName,
                     jaViu: jaViu || false,
                     conhece: conhece || false,
                     naoConhece: naoConhece || false,
