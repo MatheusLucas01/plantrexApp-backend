@@ -9,15 +9,26 @@ exports.create = async (req, res) => {
             coordenadas,
             tamanho,
             unidadeMedida,
-            // Solo
+            // Textura do solo
+            texturaArenosa,
+            texturaArenosaPerc,
+            texturaMedia,
+            texturaMediaPerc,
+            texturaArgilosa,
+            texturaArgilosaPerc,
+            // Declividade
+            soloPlano,
+            soloPlanoPerc,
+            soloDeclivModerada,
+            soloDeclivModeradaPerc,
+            soloDeclivAcentuada,
+            soloDeclivAcentuadaPerc,
+            // Solo (legado)
             soloArenoso,
             soloArgiloso,
             soloComCascalhos,
             soloComPedras,
             soloDeVarzea,
-            soloPlano,
-            soloDeclivModerada,
-            soloDeclivAcentuada,
             soloRaso,
             soloProfundo,
             // Bioinsumos
@@ -53,14 +64,23 @@ exports.create = async (req, res) => {
                 coordenadas,
                 tamanho: parseFloat(tamanho),
                 unidadeMedida: unidadeMedida || 'HECTARE',
+                texturaArenosa,
+                texturaArenosaPerc: texturaArenosaPerc ? parseFloat(texturaArenosaPerc) : null,
+                texturaMedia,
+                texturaMediaPerc: texturaMediaPerc ? parseFloat(texturaMediaPerc) : null,
+                texturaArgilosa,
+                texturaArgilosaPerc: texturaArgilosaPerc ? parseFloat(texturaArgilosaPerc) : null,
+                soloPlano,
+                soloPlanoPerc: soloPlanoPerc ? parseFloat(soloPlanoPerc) : null,
+                soloDeclivModerada,
+                soloDeclivModeradaPerc: soloDeclivModeradaPerc ? parseFloat(soloDeclivModeradaPerc) : null,
+                soloDeclivAcentuada,
+                soloDeclivAcentuadaPerc: soloDeclivAcentuadaPerc ? parseFloat(soloDeclivAcentuadaPerc) : null,
                 soloArenoso,
                 soloArgiloso,
                 soloComCascalhos,
                 soloComPedras,
                 soloDeVarzea,
-                soloPlano,
-                soloDeclivModerada,
-                soloDeclivAcentuada,
                 soloRaso,
                 soloProfundo,
                 conheceBioinsumos,
@@ -159,11 +179,19 @@ exports.update = async (req, res) => {
             });
         }
 
+        const parsePerc = (val) => (val !== undefined && val !== '' && val !== null) ? parseFloat(val) : null;
+
         const propriedade = await prisma.propriedade.update({
             where: { id },
             data: {
                 ...req.body,
                 tamanho: req.body.tamanho ? parseFloat(req.body.tamanho) : undefined,
+                texturaArenosaPerc: parsePerc(req.body.texturaArenosaPerc),
+                texturaMediaPerc: parsePerc(req.body.texturaMediaPerc),
+                texturaArgilosaPerc: parsePerc(req.body.texturaArgilosaPerc),
+                soloPlanoPerc: parsePerc(req.body.soloPlanoPerc),
+                soloDeclivModeradaPerc: parsePerc(req.body.soloDeclivModeradaPerc),
+                soloDeclivAcentuadaPerc: parsePerc(req.body.soloDeclivAcentuadaPerc),
             }
         });
 

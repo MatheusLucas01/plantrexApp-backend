@@ -51,10 +51,12 @@ exports.getDashboard = async (req, res) => {
             propriedades: {
                 total: totalPropriedades,
                 areaTotal: Math.round(totalAreaPropriedades * 10) / 10,
+                unidadeMedida: propriedades[0]?.unidadeMedida || null,
                 lista: propriedades.map(p => ({
                     id: p.id,
                     nome: p.nome,
                     tamanho: p.tamanho,
+                    unidadeMedida: p.unidadeMedida,
                     localizacao: p.localizacao
                 }))
             },

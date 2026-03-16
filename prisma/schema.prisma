@@ -46,15 +46,28 @@ model Propriedade {
   tamanho       Float
   unidadeMedida String  @default("HECTARE")
 
-  // Tipo de solo (booleanos)
+  // Textura do solo
+  texturaArenosa      Boolean @default(false)
+  texturaArenosaPerc  Float?
+  texturaMedia        Boolean @default(false)
+  texturaMediaPerc    Float?
+  texturaArgilosa     Boolean @default(false)
+  texturaArgilosaPerc Float?
+
+  // Declividade
+  soloPlano               Boolean @default(false)
+  soloPlanoPerc           Float?
+  soloDeclivModerada      Boolean @default(false)
+  soloDeclivModeradaPerc  Float?
+  soloDeclivAcentuada     Boolean @default(false)
+  soloDeclivAcentuadaPerc Float?
+
+  // Tipo de solo (legado)
   soloArenoso         Boolean @default(false)
   soloArgiloso        Boolean @default(false)
   soloComCascalhos    Boolean @default(false)
   soloComPedras       Boolean @default(false)
   soloDeVarzea        Boolean @default(false)
-  soloPlano           Boolean @default(false)
-  soloDeclivModerada  Boolean @default(false)
-  soloDeclivAcentuada Boolean @default(false)
   soloRaso            Boolean @default(false)
   soloProfundo        Boolean @default(false)
 
@@ -109,6 +122,7 @@ model Cultura {
   id               String  @id @default(nanoid())
   tipoCultura      String
   area             Float
+  unidadeMedida    String  @default("hectare")
   tipoManejo       String?
   conhecimento     String?
   pragasConhecidas String?
