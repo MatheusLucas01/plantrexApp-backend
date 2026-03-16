@@ -43,8 +43,9 @@ exports.getByCultura = async (req, res) => {
 exports.getByCategoria = async (req, res) => {
     try {
         const { categoria } = req.params;
-        const response = await axios.get(`${PRAGAS_API_BASE_URL}/categoria/${categoria}`);
-        res.json(response.data);
+        const response = await axios.get(PRAGAS_API_BASE_URL, { params: { category: categoria } });
+        const pragas = response.data.data || response.data;
+        res.json(pragas);
     } catch (error) {
         console.error('Erro ao buscar pragas por categoria:', error);
         res.status(500).json({ message: 'Erro ao buscar pragas por categoria' });
